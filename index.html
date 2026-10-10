@@ -3,307 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App Store</title>
+    <title>Aphrodite YVN Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #18222d);
-            color: var(--tg-theme-text-color, #ffffff);
+            font-family: Arial, sans-serif;
+            background: #f4f7f6;
+            color: #333333;
             margin: 0;
-            padding: 16px;
-            box-sizing: border-box;
+            padding: 15px;
         }
         .container {
-            max-width: 480px;
+            max-width: 500px;
             margin: 0 auto;
-            text-align: center;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .lang-switch button {
+            background: #e1e4e8;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 5px;
         }
         .card {
-            background: var(--tg-theme-secondary-bg-color, #212d3b);
+            background: #ffffff;
+            padding: 15px;
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 15px;
         }
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border-radius: 10px;
-            border: none;
-            background-color: var(--tg-theme-button-color, #2ea6ff);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            box-sizing: border-box;
-            text-decoration: none;
+        h2 {
+            font-size: 18px;
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
         }
-        .btn-secondary {
-            background-color: #3b4e61;
+        p {
+            font-size: 14px;
+            line-height: 1.4;
         }
-        .grid-2 {
+        .btn-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 10px;
+            margin-top: 10px;
         }
-        .code-block {
-            background: #111822;
-            padding: 8px;
-            border-radius: 6px;
-            font-family: monospace;
-            user-select: all;
-            color: #00ffcc;
-            word-break: break-all;
+        .btn-full {
+            grid-column: span 2;
+        }
+        .menu-btn {
+            background: #ffffff;
+            border: 1px solid #e1e4e8;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .menu-btn:active {
+            background: #eaecef;
+        }
+        .price {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="app" class="card">
-        <!-- Content injects dynamically -->
+    <div class="header">
+        <span style="font-weight: bold; font-size: 14px;">Aphrodite YVN</span>
+        <div class="lang-switch">
+            <button onclick="setLang('am')">🇦🇲</button>
+            <button onclick="setLang('ru')">🇷🇺</button>
+            <button onclick="setLang('en')">🇬🇧</button>
+        </div>
+    </div>
+
+    <!-- 1. Հիմնական էջ / Welcome -->
+    <div id="screen-home" class="card">
+        <p id="welcome-text" style="text-align: center; white-space: pre-line;"></p>
+        <button class="menu-btn btn-full" style="background: #2ea44f; color: white;" onclick="showScreen('screen-region')" id="btn-buy-text"></button>
+    </div>
+
+    <!-- 2. Մարզերի / Երևանի ընտրություն -->
+    <div id="screen-region" class="card hidden">
+        <h2 id="title-region"></h2>
+        <div class="btn-grid">
+            <button class="menu-btn btn-full" onclick="showScreen('screen-districts')" id="btn-yerevan"></button>
+            <button class="menu-btn btn-full" onclick="alert(currentLang === 'ru' ? '❌ Извините, в данный момент в областях товар распродан.' : currentLang === 'en' ? '❌ Sorry, items in provinces are currently sold out.' : '❌ Կներեք, տվյալ պահին մարզերում ապրանքները սպառված են։')" id="btn-provinces"></button>
+        </div>
+        <button class="back-btn" onclick="showScreen('screen-home')" id="btn-back-1"></button>
+    </div>
+
+    <!-- 3. Վարչական շրջաններ -->
+    <div id="screen-districts" class="card hidden">
+        <h2 id="title-districts"></h2>
+        <div class="btn-grid">
+            <button class="menu-btn" onclick="selectDistrict('3-րդ մաս')">3-րդ մաս ✅</button>
+            <button class="menu-btn" onclick="selectDistrict('Չարբախ')">Չարբախ ✅</button>
+            <button class="menu-btn" onclick="selectDistrict('Շենգավիթ')">Շենգավիթ ✅</button>
+            <button class="menu-btn" onclick="selectDistrict('Էրեբունի')">Էրեբունի ✅</button>
+            <button class="menu-btn" onclick="selectDistrict('Կենտրոն')">Կենտրոն ✅</button>
+            <button class="menu-btn" onclick="selectDistrict('Կոմիտաս')">Կոմիտաս ✅</button>
+        </div>
+        <button class="back-btn" onclick="showScreen('screen-region')" id="btn-back-2"></button>
+    </div>
+
+    <!-- 4. Ապրանքատեսակներ -->
+    <div id="screen-types" class="card hidden">
+        <h2 id="title-types"></h2>
+        <div class="btn-grid">
+            <button class="menu-btn btn-full" onclick="selectType('🪨 Բազալտ / Basalt', 'basalt')">🪨 Բազալտ ✅</button>
+            <button class="menu-btn btn-full" onclick="selectType('🌿 Ֆնդ / Fnd', 'fnd')">🌿 Ֆնդ ✅</button>
+            <button class="menu-btn btn-full" onclick="selectType('🍫 Շոկո / Shoko', 'shoko')">🍫 Շոկո ✅</button>
+        </div>
+        <button class="back-btn" onclick="showScreen('screen-districts')" id="btn-back-3"></button>
+    </div>
+
+    <!-- 5. Քաշեր և գներ -->
+    <div id="screen-weights" class="card hidden">
+        <h2 id="title-weights"></h2>
+        <div id="weights-container" class="btn-grid"></div>
+        <button class="back-btn" onclick="showScreen('screen-types')" id="btn-back-4"></button>
+    </div>
+
+    <!-- 6. Վճարում -->
+    <div id="screen-payment" class="card hidden">
+        <h2 id="title-payment"></h2>
+        <p id="selected-info" style="text-align: center; font-weight: bold;"></p>
+        <div class="btn-grid">
+            <button class="menu-btn btn-full" onclick="showPaymentDetails('dash')">🪙 Dash Wallet</button>
+            <button class="menu-btn" onclick="showPaymentDetails('telcell')">🟩 Telcell</button>
+            <button class="menu-btn" onclick="showPaymentDetails('easypay')">🟧 EasyPay</button>
+        </div>
+        <button class="back-btn" onclick="showScreen('screen-weights')" id="btn-back-5"></button>
+    </div>
+
+    <!-- 7. Վճարման տվյալներ -->
+    <div id="screen-pay-details" class="card hidden">
+        <h2 id="title-pay-details"></h2>
+        <p id="pay-instructions" style="white-space: pre-line; background: #eee; padding: 10px; border-radius: 6px;"></p>
+        <button class="menu-btn btn-full" style="background: #2ea44f; color: white; margin-top: 10px;" onclick="window.open('https://t.me/Aphrodite_market')">💬 Support (@Aphrodite_market)</button>
+        <button class="back-btn" onclick="showScreen('screen-payment')" id="btn-back-6"></button>
     </div>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+    let currentLang = 'am';
+    let selectedData = { district: '', type: '', weight: '', price: '' };
 
-    // 📌 Ձեր տվյալները նկարից
-    const TOKEN = "8902864812:AAGVAEcUYUBZHyzWsIYcLVkQ40Cwsk4Pwg";
-    const DASH_ADDRESS = "XksCVfUkMiaEigmLABFbJiniQtxnSFvPY";
-    const TELCELL_NUMBER = "Telcell (Telcell Wallet) - 055 51 35 45";
-    const EASYPAY_NUMBER = "Easypay (Easy Wallet) - 095 06 11 93";
-    const SUPPORT_GENERAL = "Aphrodite_market";
-    const SUPPORT_EXCHANGE = "swopex";
-
-    let currentLang = "am";
-    let selectedPriceName = "";
-    let selectedAmount = "";
-    let timerInterval = null;
-
-    const LANGS = {
+    const texts = {
         am: {
-            welcome: "Բարեւ ձեզ հարգելի 🔻🔻հաճախորդներ ուզում եմ ձեզ տեղեկացնել որ մեր միակ պաշտոնական բոտը սա է🔻🔻<br>💎սիրով պատրաստ ենք ձեզ տրամադրել ձեր ուզած քաշի ու տեսակի պահոցը արագ և ապահով✅",
-            btn_buy: "🛒 Գնել",
-            btn_balance: "💳 Հաշիվ",
-            btn_lang: "🌐 Լեզու",
-            btn_back: "⬅️ Հետ",
-            btn_support: "💬 Սուպորտ",
-            select_region: "📍 Ընտրեք մարզը կամ քաղաքը:",
+            welcome: "Բարեւ ձեզ հարգելի 🔻🔻հաճախորդներ ուզում եմ ձեզ տեղեկացնել որ մեր միակ պաշտոնական բոտը սա է🔻🔻\n💎սիրով պատրաստ ենք ձեզ տրամադրել ձեր ուզած քաշի ու տեսակի պահոցը արագ և ապահով✅",
+            buy: "🛒 Գնել",
+            region: "📍 Ընտրեք մարզը կամ քաղաքը:",
             yerevan: "🏙 Երևան",
             provinces: "🏞 Մարզեր",
-            provinces_sold_out: "❌ Կներեք, տվյալ պահին մարզերում ապրանքները սպառված են։",
-            select_district: "📍 Ընտրեք վարչական շրջանը:",
-            select_type: "📍 Ընտրեք տեսականին:",
-            select_weight: "⚙️ Ընտրեք չափը / քաշը:",
-            select_pay: "💳 Ընտրեք վճարման եղանակը:",
-            sold_out: "❌ Այս ապրանքը/շրջանը տվյալ պահին սպառված է։",
-            balance_text: "Ձեր հաշվեկշիռը՝ 0.0$"
-        },
-        ru: {
-            welcome: "Здравствуйте, уважаемые 🔻🔻клиенты, хотим сообщить вам, что это наш единственный официальный бот 🔻🔻<br>💎Мы с радостью готовы предоставить вам нужное количество и вид клада быстро и надежно✅",
-            btn_buy: "🛒 Купить",
-            btn_balance: "💳 Баланс",
-            btn_lang: "🌐 Язык",
-            btn_back: "⬅️ Назад",
-            btn_support: "💬 Поддержка",
-            select_region: "📍 Выберите регион или город:",
+            districts: "📍 Ընտրեք վարչական շրջանը:",
+            types: "📍 Ընտրեք տեսականին:",
+            weights: "⚙️ Ընտրեք չափը / քաշը:",
+            payment: "💳 Ընտրեք վճարման եղանակը:",
+            back: "⬅️ Հետ",
+            dashText: "<b>Սպասում վճարում...</b>\n\n💳 Գումար: <b>{price}</b>\n📩 Հասցե (Dash): <code>Xiu7UWmMs4htPq2fX4Lb5vsVG6JoUZzfmy</code>\n\n⏳ Վճարելուց հետո ուղարկեք կտրոնը սուպորտին ✅",
+            telcellText: "🟩 <b>Telcell Wallet</b>\n<code>055513545</code>\n\n💰 Գումար: <b>{price}</b>",
+            easypayText: "🟧 <b>Easy Wallet</b>\n<code>095061193</code>\n\n💰 Գումար: <b>{price}</b>"
+        },buy: "🛒 Купить",
+            region: "📍 Выберите регион или город:",
             yerevan: "🏙 Ереван",
             provinces: "🏞 Области",
-            provinces_sold_out: "❌ Извините, в данный момент в областях товар распродан.",
-            select_district: "📍 Выберите административный район:",
-            select_type: "📍 Выберите ассортимент:",
-            select_weight: "⚙️ Выберите размер / вес:",
-            select_pay: "💳 Выберите способ оплаты:",
-            sold_out: "❌ Этот товар/район в данный момент распродан.",
-            balance_text: "Ваш баланс: 0.0$"
+            districts: "📍 Выберите административный район:",
+            types: "📍 Выберите ассортимент:",
+            weights: "⚙️ Выберите размер / вес:",
+            payment: "💳 Выберите способ оплаты:",
+            back: "⬅️ Назад",
+            dashText: "<b>Ожидание оплаты...</b>\n\n💳 Сумма: <b>{price}</b>\n📩 Адрес (Dash): <code>Xiu7UWmMs4htPq2fX4Lb5vsVG6JoUZzfmy</code>\n\n⏳ После оплаты отправьте чек в поддержку ✅",
+            telcellText: "🟩 <b>Telcell Wallet</b>\n<code>055513545</code>\n\n💰 Сумма: <b>{price}</b>",
+            easypayText: "🟧 <b>Easy Wallet</b>\n<code>095061193</code>\n\n💰 Сумма: <b>{price}</b>"
         },
         en: {
-            welcome: "Hello dear 🔻🔻customers, we want to inform you that this is our only official bot 🔻🔻<br>💎We are happy to provide you with the desired weight and type of stash quickly and securely✅",
-            btn_buy: "🛒 Buy",
-            btn_balance: "💳 Balance",
-            btn_lang: "🌐 Language",
-            btn_back: "⬅️ Back",
-            btn_support: "💬 Support",
-            select_region: "📍 Select region or city:",
+            welcome: "Hello dear 🔻🔻customers, we want to inform you that this is our only official bot 🔻🔻\n💎We are happy to provide you with the desired weight and type of stash quickly and securely✅",
+            buy: "🛒 Buy",
+            region: "📍 Select region or city:",
             yerevan: "🏙 Yerevan",
             provinces: "🏞 Provinces",
-            provinces_sold_out: "❌ Sorry, items in provinces are currently sold out.",
-            select_district: "📍 Select district:",
-            select_type: "📍 Select category:",
-            select_weight: "⚙️ Select size / weight:",
-            select_pay: "💳 Select payment method:",
-            sold_out: "❌ This item/district is currently sold out.",
-            balance_text: "Your balance: 0.0$"
+            districts: "📍 Select district:",
+            types: "📍 Select category:",
+            weights: "⚙️ Select size / weight:",
+            payment: "💳 Select payment method:",
+            back: "⬅️ Back",
+            dashText: "<b>Waiting for payment...</b>\n\n💳 Amount: <b>{price}</b>\n📩 Address (Dash): <code>Xiu7UWmMs4htPq2fX4Lb5vsVG6JoUZzfmy</code>\n\n⏳ After payment, send receipt to support ✅",
+            telcellText: "🟩 <b>Telcell Wallet</b>\n<code>055513545</code>\n\n💰 Amount: <b>{price}</b>",
+            easypayText: "🟧 <b>Easy Wallet</b>\n<code>095061193</code>\n\n💰 Amount: <b>{price}</b>"
         }
     };
 
-    function renderHome() {
-        if(timerInterval) clearInterval(timerInterval);
-        const t = LANGS[currentLang];
-        document.getElementById('app').innerHTML = 
-            <p>${t.welcome}</p>
-            <div class="grid-2">
-                <button class="btn" onclick="renderRegions()">${t.btn_buy}</button>
-                <button class="btn btn-secondary" onclick="alert('${t.balance_text}')">${t.btn_balance}</button>
-            </div>
-            <button class="btn btn-secondary" onclick="renderLangSelect()">${t.btn_lang}</button>
-        ;
-    }
-
-    function renderLangSelect() {
-        document.getElementById('app').innerHTML = 
-            <h3>Select Language</h3>
-            <button class="btn" onclick="setLang('am')">🇦🇲 Հայերեն</button>
-            <button class="btn" onclick="setLang('ru')">🇷🇺 Русский</button>
-            <button class="btn" onclick="setLang('en')">🇬🇧 English</button>
-            <button class="btn btn-secondary" onclick="renderHome()">${LANGS[currentLang].btn_back}</button>
-        ;
-    }
+    const weightsData = {
+        basalt: [
+            { name: "0.1", price: "18.0 $" },
+            { name: "0.2", price: "35.0 $" },
+            { name: "0.3", price: "45.0 $" },
+            { name: "0.5", price: "55.0 $" },
+            { name: "1.0", price: "85.0 $" }
+        ],
+        fnd: [
+            { name: "0.5", price: "23.0 $" },
+            { name: "1.0", price: "35.0 $" },
+            { name: "2.0", price: "47.0 $" }
+        ],
+        shoko: [
+            { name: "0.5", price: "20.0 $" },
+            { name: "1.0", price: "39.0 $" }
+        ]
+    };
 
     function setLang(lang) {
         currentLang = lang;
-        renderHome();
+        updateTexts();
     }
 
-    function renderRegions() {
-        const t = LANGS[currentLang];
-        document.getElementById('app').innerHTML = 
-            <h3>${t.select_region}</h3>
-            <div class="grid-2">
-                <button class="btn" onclick="renderDistricts()">${t.yerevan}</button>
-                <button class="btn btn-secondary" onclick="alert('${t.provinces_sold_out}'); renderDistricts();">${t.provinces}</button>
-            </div>
-            <button class="btn btn-secondary" onclick="renderHome()">${t.btn_back}</button>
-        ;
+    function updateTexts() {
+        let t = texts[currentLang];
+        document.getElementById('welcome-text').innerText = t.welcome;
+        document.getElementById('btn-buy-text').innerText = t.buy;
+        document.getElementById('title-region').innerText = t.region;
+        document.getElementById('btn-yerevan').innerText = t.yerevan;
+        document.getElementById('btn-provinces').innerText = t.provinces;
+        document.getElementById('title-districts').innerText = t.districts;
+        document.getElementById('title-types').innerText = t.types;
+        document.getElementById('title-weights').innerText = t.weights;
+        document.getElementById('title-payment').innerText = t.payment;
+
+        ['btn-back-1', 'btn-back-2', 'btn-back-3', 'btn-back-4', 'btn-back-5', 'btn-back-6'].forEach(id => {
+            document.getElementById(id).innerText = t.back;
+        });
     }
 
-    function renderDistricts() {
-        const t = LANGS[currentLang];
-        document.getElementById('app').innerHTML = 
-            <h3>${t.select_district}</h3>
-            <div class="grid-2">
-                <button class="btn" onclick="renderTypes()">3-րդ մաս ✅</button>
-                <button class="btn" onclick="renderTypes()">Չարբախ ✅</button>
-                <button class="btn" onclick="renderTypes()">Շենգավիթ ✅</button>
-                <button class="btn" onclick="renderTypes()">Էրեբունի ✅</button>
-                <button class="btn" onclick="renderTypes()">Կենտրոն ✅</button>
-                <button class="btn" onclick="renderTypes()">Կոմիտաս ✅</button>
-            </div>
-            <button class="btn btn-secondary" onclick="renderRegions()">${t.btn_back}</button>
-        ;
-    }function renderTypes() {
-        const t = LANGS[currentLang];
-        document.getElementById('app').innerHTML = 
-            <h3>${t.select_type}</h3>
-            <div class="grid-2">
-                <button class="btn" onclick="renderWeights('basalt')">🪨 Բազալտ ✅</button>
-                <button class="btn" onclick="renderWeights('fnd')">🌿 Ֆնդ ✅</button>
-            </div>
-            <button class="btn" onclick="renderWeights('shoko')">🍫 Շոկո ✅</button>
-            <button class="btn btn-secondary" onclick="renderDistricts()">${t.btn_back}</button>
-        ;
+    function showScreen(screenId) {
+        document.querySelectorAll('.card').forEach(el => el.classList.add('hidden'));
+        document.getElementById(screenId).classList.remove('hidden');
     }
 
-    function renderWeights(type) {
-        const t = LANGS[currentLang];
-        let html = <h3>${t.select_weight}</h3>;
+    function selectDistrict(district) {
+        selectedData.district = district;
+        showScreen('screen-types');
+    }
+
+    function selectType(typeName, typeKey) {
+        selectedData.type = typeName;
+        let container = document.getElementById('weights-container');
+        container.innerHTML = '';
         
-        if (type === 'basalt') {
-            html += 
-                <div class="grid-2">
-                    <button class="btn" onclick="selectPay('Bazalt 0.1 (18$)', '18.0 $')">⚖️ 0.1 - 18$ ✅</button>
-                    <button class="btn" onclick="selectPay('Bazalt 0.2 (35$)', '35.0 $')">⚖️ 0.2 - 35$ ✅</button>
-                    <button class="btn" onclick="selectPay('Bazalt 0.3 (45$)', '45.0 $')">⚖️ 0.3 - 45$ ✅</button>
-                    <button class="btn" onclick="selectPay('Bazalt 0.5 (55$)', '55.0 $')">⚖️ 0.5 - 55$ ✅</button>
-                </div>
-                <button class="btn" onclick="selectPay('Bazalt 1 (85$)', '85.0 $')">⚖ 1.0 - 85$ ✅</button>
-            ;
-        } else if (type === 'fnd') {
-            html += 
-                <div class="grid-2">
-                    <button class="btn" onclick="selectPay('Fnd 0.5 (23$)', '23.0 $')">⚖ 0.5 - 23$ ✅</button>
-                    <button class="btn" onclick="selectPay('Fnd 1 (35$)', '35.0 $')">⚖️ 1.0 - 35$ ✅</button>
-                </div>
-                <button class="btn" onclick="selectPay('Fnd 2 (47$)', '47.0 $')">⚖️ 2.0 - 47$ ✅</button>
-            ;
-        } else {
-            html += 
-                <button class="btn" onclick="selectPay('Shoko 0.5 (20$)', '20.0 $')">🍫 0.5 - 20$ ✅</button>
-                <button class="btn" onclick="selectPay('Shoko 1 (39$)', '39.0 $')">🍫 1 - 39$ ✅</button>
-            ;
+        weightsData[typeKey].forEach(item => {
+            let btn = document.createElement('button');
+            btn.className = 'menu-btn';
+            btn.innerHTML = ⚖️ ${item.name} - <span class="price">${item.price}</span>;
+            btn.onclick = () => selectWeight(item.name, item.price);
+            container.appendChild(btn);
+        });
+        showScreen('screen-weights');
+    }
+
+    function selectWeight(weight, price) {
+        selectedData.weight = weight;
+        selectedData.price = price;
+        document.getElementById('selected-info').innerText = ${selectedData.type} (${weight}) - ${price};
+        showScreen('screen-payment');
+    }
+
+    function showPaymentDetails(method) {
+        let t = texts[currentLang];
+        let infoEl = document.getElementById('pay-instructions');
+        if (method === 'dash') {
+            infoEl.innerHTML = t.dashText.replace('{price}', selectedData.price);
+        } else if (method === 'telcell') {
+            infoEl.innerHTML = t.telcellText.replace('{price}', selectedData.price);
+        } else if (method === 'easypay') {
+            infoEl.innerHTML = t.easypayText.replace('{price}', selectedData.price);
         }
-
-        html += <button class="btn btn-secondary" onclick="renderTypes()">${t.btn_back}</button>;
-        document.getElementById('app').innerHTML = html;
+        showScreen('screen-pay-details');
     }
 
-    function selectPay(name, amount) {
-        selectedPriceName = name;
-        selectedAmount = amount;
-        const t = LANGS[currentLang];
-        document.getElementById('app').innerHTML = 
-            <h3>${t.select_pay}</h3>
-            <h4>💰 ${name}</h4>
-            <div class="grid-2">
-                <button class="btn" onclick="payDash()">🪙 Dash</button>
-                <button class="btn" onclick="payWallet('telcell')">🟩 Telcell</button>
-                <button class="btn" onclick="payWallet('easypay')">🟧 EasyPay</button>
-                <button class="btn" onclick="payWallet('card')">💳 Kart</button>
-            </div>
-            <a class="btn btn-secondary" href="https://t.me/${SUPPORT_GENERAL}" target="_blank">${t.btn_support}</a>
-            <button class="btn btn-secondary" onclick="renderTypes()">${t.btn_back}</button>
-        ;
-    }
-
-    function payDash() {
-        let secondsLeft = 25 * 60;
-        function updateTimer() {
-            let mins = Math.floor(secondsLeft / 60);
-            let secs = secondsLeft % 60;
-            let timeStr = ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')};
-            
-            document.getElementById('app').innerHTML = 
-                <h3>⏱️ Սպասում վճարում...</h3>
-                <p>💳 Գումար: <b>${selectedAmount}</b></p>
-                <p>📩 Հասցե:</p>
-                <div class="code-block">${DASH_ADDRESS}</div>
-                <p>⏱️ Մնաց ժամանակ: <b>${timeStr}</b></p>
-                <p><small>⏳ Վճարելուց հետո ուղարկեք վճարման կտրոնը @${SUPPORT_GENERAL}-ին ✅</small></p>
-                <a class="btn" href="https://t.me/${SUPPORT_GENERAL}" target="_blank">💬 Գրել սուպորտին</a>
-                <button class="btn btn-secondary" onclick="renderHome()">${LANGS[currentLang].btn_back}</button>
-            ;
-            secondsLeft--;
-            if(secondsLeft < 0) clearInterval(timerInterval);
-        }
-        updateTimer();
-        if(timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(updateTimer, 1000);
-    }
-
-    function payWallet(type) {
-        if(timerInterval) clearInterval(timerInterval);
-        let title = "", num = "";
-        if(type === 'telcell') { title = "🟩 Telcell Wallet"; num = TELCELL_NUMBER; }
-        else if(type === 'easypay') { title = "🟧 EasyPay Wallet"; num = EASYPAY_NUMBER; }
-        else { title = "💳 Card / ID Bank"; num = TELCELL_NUMBER; }
-
-        document.getElementById('app').innerHTML = 
-            <h3>${title}</h3>
-            <div class="code-block">${num}</div>
-            <p>💰 <b>${selectedPriceName}</b></p>
-            <p>💬 Կապ՝ @${SUPPORT_EXCHANGE}</p>
-            <a class="btn" href="https://t.me/${SUPPORT_EXCHANGE}" target="_blank">💬 Գրել Exchange (@${SUPPORT_EXCHANGE})</a>
-            <button class="btn btn-secondary" onclick="renderHome()">${LANGS[currentLang].btn_back}</button>
-        ;
-    }
-
-    // Start App
-    renderHome();
+    updateTexts();
 </script>
+
 </body>
 </html>
+        
