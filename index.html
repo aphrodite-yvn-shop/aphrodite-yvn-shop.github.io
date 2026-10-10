@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Web App Store</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #18222d);
+            color: var(--tg-theme-text-color, #ffffff);
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .card {
+            background: var(--tg-theme-secondary-bg-color, #212d3b);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--tg-theme-button-color, #2ea6ff);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-sizing: border-box;
+            text-decoration: none;
+        }
+        .btn-secondary {
+            background-color: #3b4e61;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .code-block {
+            background: #111822;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            user-select: all;
+            color: #00ffcc;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="app" class="card">
+        <!-- Content injects dynamically -->
+    </div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // 📌 Ձեր տվյալները նկարից
+    const TOKEN = "8902864812:AAGVAEcUYUBZHyzWsIYcLVkQ40Cwsk4Pwg";
+    const DASH_ADDRESS = "XksCVfUkMiaEigmLABFbJiniQtxnSFvPY";
+    const TELCELL_NUMBER = "Telcell (Telcell Wallet) - 055 51 35 45";
+    const EASYPAY_NUMBER = "Easypay (Easy Wallet) - 095 06 11 93";
+    const SUPPORT_GENERAL = "Aphrodite_market";
+    const SUPPORT_EXCHANGE = "swopex";
+
+    let currentLang = "am";
+    let selectedPriceName = "";
+    let selectedAmount = "";
+    let timerInterval = null;
+
+    const LANGS = {
+        am: {
+            welcome: "Բարեւ ձեզ հարգելի 🔻🔻հաճախորդներ ուզում եմ ձեզ տեղեկացնել որ մեր միակ պաշտոնական բոտը սա է🔻🔻<br>💎սիրով պատրաստ ենք ձեզ տրամադրել ձեր ուզած քաշի ու տեսակի պահոցը արագ և ապահով✅",
+            btn_buy: "🛒 Գնել",
+            btn_balance: "💳 Հաշիվ",
+            btn_lang: "🌐 Լեզու",
+            btn_back: "⬅️ Հետ",
+            btn_support: "💬 Սուպորտ",
+            select_region: "📍 Ընտրեք մարզը կամ քաղաքը:",
+            yerevan: "🏙 Երևան",
+            provinces: "🏞 Մարզեր",
+            provinces_sold_out: "❌ Կներեք, տվյալ պահին մարզերում ապրանքները սպառված են։",
+            select_district: "📍 Ընտրեք վարչական շրջանը:",
+            select_type: "📍 Ընտրեք տեսականին:",
+            select_weight: "⚙️ Ընտրեք չափը / քաշը:",
+            select_pay: "💳 Ընտրեք վճարման եղանակը:",
+            sold_out: "❌ Այս ապրանքը/շրջանը տվյալ պահին սպառված է։",
+            balance_text: "Ձեր հաշվեկշիռը՝ 0.0$"
+        },
+        ru: {
+            welcome: "Здравствуйте, уважаемые 🔻🔻клиенты, хотим сообщить вам, что это наш единственный официальный бот 🔻🔻<br>💎Мы с радостью готовы предоставить вам нужное количество и вид клада быстро и надежно✅",
+            btn_buy: "🛒 Купить",
+            btn_balance: "💳 Баланс",
+            btn_lang: "🌐 Язык",
+            btn_back: "⬅️ Назад",
+            btn_support: "💬 Поддержка",
+            select_region: "📍 Выберите регион или город:",
+            yerevan: "🏙 Ереван",
+            provinces: "🏞 Области",
+            provinces_sold_out: "❌ Извините, в данный момент в областях товар распродан.",
+            select_district: "📍 Выберите административный район:",
+            select_type: "📍 Выберите ассортимент:",
+            select_weight: "⚙️ Выберите размер / вес:",
+            select_pay: "💳 Выберите способ оплаты:",
+            sold_out: "❌ Этот товар/район в данный момент распродан.",
+            balance_text: "Ваш баланс: 0.0$"
+        },
+        en: {
+            welcome: "Hello dear 🔻🔻customers, we want to inform you that this is our only official bot 🔻🔻<br>💎We are happy to provide you with the desired weight and type of stash quickly and securely✅",
+            btn_buy: "🛒 Buy",
+            btn_balance: "💳 Balance",
+            btn_lang: "🌐 Language",
+            btn_back: "⬅️ Back",
+            btn_support: "💬 Support",
+            select_region: "📍 Select region or city:",
+            yerevan: "🏙 Yerevan",
+            provinces: "🏞 Provinces",
+            provinces_sold_out: "❌ Sorry, items in provinces are currently sold out.",
+            select_district: "📍 Select district:",
+            select_type: "📍 Select category:",
+            select_weight: "⚙️ Select size / weight:",
+            select_pay: "💳 Select payment method:",
+            sold_out: "❌ This item/district is currently sold out.",
+            balance_text: "Your balance: 0.0$"
+        }
+    };
+
+    function renderHome() {
+        if(timerInterval) clearInterval(timerInterval);
+        const t = LANGS[currentLang];
+        document.getElementById('app').innerHTML = 
+            <p>${t.welcome}</p>
+            <div class="grid-2">
+                <button class="btn" onclick="renderRegions()">${t.btn_buy}</button>
+                <button class="btn btn-secondary" onclick="alert('${t.balance_text}')">${t.btn_balance}</button>
+            </div>
+            <button class="btn btn-secondary" onclick="renderLangSelect()">${t.btn_lang}</button>
+        ;
+    }
+
+    function renderLangSelect() {
+        document.getElementById('app').innerHTML = 
+            <h3>Select Language</h3>
+            <button class="btn" onclick="setLang('am')">🇦🇲 Հայերեն</button>
+            <button class="btn" onclick="setLang('ru')">🇷🇺 Русский</button>
+            <button class="btn" onclick="setLang('en')">🇬🇧 English</button>
+            <button class="btn btn-secondary" onclick="renderHome()">${LANGS[currentLang].btn_back}</button>
+        ;
+    }
+
+    function setLang(lang) {
+        currentLang = lang;
+        renderHome();
+    }
+
+    function renderRegions() {
+        const t = LANGS[currentLang];
+        document.getElementById('app').innerHTML = 
+            <h3>${t.select_region}</h3>
+            <div class="grid-2">
+                <button class="btn" onclick="renderDistricts()">${t.yerevan}</button>
+                <button class="btn btn-secondary" onclick="alert('${t.provinces_sold_out}'); renderDistricts();">${t.provinces}</button>
+            </div>
+            <button class="btn btn-secondary" onclick="renderHome()">${t.btn_back}</button>
+        ;
+    }
+
+    function renderDistricts() {
+        const t = LANGS[currentLang];
+        document.getElementById('app').innerHTML = 
+            <h3>${t.select_district}</h3>
+            <div class="grid-2">
+                <button class="btn" onclick="renderTypes()">3-րդ մաս ✅</button>
+                <button class="btn" onclick="renderTypes()">Չարբախ ✅</button>
+                <button class="btn" onclick="renderTypes()">Շենգավիթ ✅</button>
+                <button class="btn" onclick="renderTypes()">Էրեբունի ✅</button>
+                <button class="btn" onclick="renderTypes()">Կենտրոն ✅</button>
+                <button class="btn" onclick="renderTypes()">Կոմիտաս ✅</button>
+            </div>
+            <button class="btn btn-secondary" onclick="renderRegions()">${t.btn_back}</button>
+        ;
+    }function renderTypes() {
+        const t = LANGS[currentLang];
+        document.getElementById('app').innerHTML = 
+            <h3>${t.select_type}</h3>
+            <div class="grid-2">
+                <button class="btn" onclick="renderWeights('basalt')">🪨 Բազալտ ✅</button>
+                <button class="btn" onclick="renderWeights('fnd')">🌿 Ֆնդ ✅</button>
+            </div>
+            <button class="btn" onclick="renderWeights('shoko')">🍫 Շոկո ✅</button>
+            <button class="btn btn-secondary" onclick="renderDistricts()">${t.btn_back}</button>
+        ;
+    }
+
+    function renderWeights(type) {
+        const t = LANGS[currentLang];
+        let html = <h3>${t.select_weight}</h3>;
+        
+        if (type === 'basalt') {
+            html += 
+                <div class="grid-2">
+                    <button class="btn" onclick="selectPay('Bazalt 0.1 (18$)', '18.0 $')">⚖️ 0.1 - 18$ ✅</button>
+                    <button class="btn" onclick="selectPay('Bazalt 0.2 (35$)', '35.0 $')">⚖️ 0.2 - 35$ ✅</button>
+                    <button class="btn" onclick="selectPay('Bazalt 0.3 (45$)', '45.0 $')">⚖️ 0.3 - 45$ ✅</button>
+                    <button class="btn" onclick="selectPay('Bazalt 0.5 (55$)', '55.0 $')">⚖️ 0.5 - 55$ ✅</button>
+                </div>
+                <button class="btn" onclick="selectPay('Bazalt 1 (85$)', '85.0 $')">⚖ 1.0 - 85$ ✅</button>
+            ;
+        } else if (type === 'fnd') {
+            html += 
+                <div class="grid-2">
+                    <button class="btn" onclick="selectPay('Fnd 0.5 (23$)', '23.0 $')">⚖ 0.5 - 23$ ✅</button>
+                    <button class="btn" onclick="selectPay('Fnd 1 (35$)', '35.0 $')">⚖️ 1.0 - 35$ ✅</button>
+                </div>
+                <button class="btn" onclick="selectPay('Fnd 2 (47$)', '47.0 $')">⚖️ 2.0 - 47$ ✅</button>
+            ;
+        } else {
+            html += 
+                <button class="btn" onclick="selectPay('Shoko 0.5 (20$)', '20.0 $')">🍫 0.5 - 20$ ✅</button>
+                <button class="btn" onclick="selectPay('Shoko 1 (39$)', '39.0 $')">🍫 1 - 39$ ✅</button>
+            ;
+        }
+
+        html += <button class="btn btn-secondary" onclick="renderTypes()">${t.btn_back}</button>;
+        document.getElementById('app').innerHTML = html;
+    }
+
+    function selectPay(name, amount) {
+        selectedPriceName = name;
+        selectedAmount = amount;
+        const t = LANGS[currentLang];
+        document.getElementById('app').innerHTML = 
+            <h3>${t.select_pay}</h3>
+            <h4>💰 ${name}</h4>
+            <div class="grid-2">
+                <button class="btn" onclick="payDash()">🪙 Dash</button>
+                <button class="btn" onclick="payWallet('telcell')">🟩 Telcell</button>
+                <button class="btn" onclick="payWallet('easypay')">🟧 EasyPay</button>
+                <button class="btn" onclick="payWallet('card')">💳 Kart</button>
+            </div>
+            <a class="btn btn-secondary" href="https://t.me/${SUPPORT_GENERAL}" target="_blank">${t.btn_support}</a>
+            <button class="btn btn-secondary" onclick="renderTypes()">${t.btn_back}</button>
+        ;
+    }
+
+    function payDash() {
+        let secondsLeft = 25 * 60;
+        function updateTimer() {
+            let mins = Math.floor(secondsLeft / 60);
+            let secs = secondsLeft % 60;
+            let timeStr = ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')};
+            
+            document.getElementById('app').innerHTML = 
+                <h3>⏱️ Սպասում վճարում...</h3>
+                <p>💳 Գումար: <b>${selectedAmount}</b></p>
+                <p>📩 Հասցե:</p>
+                <div class="code-block">${DASH_ADDRESS}</div>
+                <p>⏱️ Մնաց ժամանակ: <b>${timeStr}</b></p>
+                <p><small>⏳ Վճարելուց հետո ուղարկեք վճարման կտրոնը @${SUPPORT_GENERAL}-ին ✅</small></p>
+                <a class="btn" href="https://t.me/${SUPPORT_GENERAL}" target="_blank">💬 Գրել սուպորտին</a>
+                <button class="btn btn-secondary" onclick="renderHome()">${LANGS[currentLang].btn_back}</button>
+            ;
+            secondsLeft--;
+            if(secondsLeft < 0) clearInterval(timerInterval);
+        }
+        updateTimer();
+        if(timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function payWallet(type) {
+        if(timerInterval) clearInterval(timerInterval);
+        let title = "", num = "";
+        if(type === 'telcell') { title = "🟩 Telcell Wallet"; num = TELCELL_NUMBER; }
+        else if(type === 'easypay') { title = "🟧 EasyPay Wallet"; num = EASYPAY_NUMBER; }
+        else { title = "💳 Card / ID Bank"; num = TELCELL_NUMBER; }
+
+        document.getElementById('app').innerHTML = 
+            <h3>${title}</h3>
+            <div class="code-block">${num}</div>
+            <p>💰 <b>${selectedPriceName}</b></p>
+            <p>💬 Կապ՝ @${SUPPORT_EXCHANGE}</p>
+            <a class="btn" href="https://t.me/${SUPPORT_EXCHANGE}" target="_blank">💬 Գրել Exchange (@${SUPPORT_EXCHANGE})</a>
+            <button class="btn btn-secondary" onclick="renderHome()">${LANGS[currentLang].btn_back}</button>
+        ;
+    }
+
+    // Start App
+    renderHome();
+</script>
+</body>
+</html>
