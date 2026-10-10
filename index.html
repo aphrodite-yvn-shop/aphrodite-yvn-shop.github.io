@@ -1,214 +1,146 @@
 <!DOCTYPE html>
 <html lang="hy">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aphrodite YVN Shop</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding-bottom: 90px;
-      font-family: system-ui, sans-serif;
-      background: #18222d;
-      color: white;
-    }
-    header {
-      padding: 18px 12px;
-      text-align: center;
-      background: linear-gradient(135deg, #2ea6ff, #1882d2);
-    }
-    header h2 { margin: 0; font-size: 20px; }
-    header p { margin: 6px 0 0; font-size: 13px; }
-    #grid {
-      max-width: 480px;
-      margin: auto;
-      padding: 12px;
-    }
-    .card {
-      background: #242f3d;
-      padding: 14px;
-      margin-bottom: 12px;
-      border-radius: 12px;
-    }
-    .name { color: #2ea6ff; font-weight: 700; margin-bottom: 12px; }
-    .item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 10px 0;
-      border-bottom: 1px solid #ffffff18;
-    }
-    .item:last-child { border-bottom: 0; }
-    .price { white-space: nowrap; font-weight: 700; }
-    button {
-      border: 0;
-      border-radius: 7px;
-      padding: 9px 12px;
-      color: white;
-      background: #168edb;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    button:active { opacity: .7; }
-    .qty { display: flex; align-items: center; gap: 8px; }
-    .qty button { padding: 5px 10px; }
-    #bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 12px;
-      background: #1e2c3a;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      box-shadow: 0 -3px 12px #0005;
-    }
-    #order { background: #2ea6ff; }
-    #error { padding: 12px; color: #ffbdbd; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Aphrodite YVN Shop</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #18222d; color: #fff; padding-bottom: 90px; }
+  header { background: linear-gradient(135deg, #2ea6ff, #1882d2); color: #fff; padding: 16px; text-align: center; }
+  header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+  header p { margin: 4px 0 0; opacity: 0.9; font-size: 12px; }
+  .container { padding: 12px; max-width: 480px; margin: 0 auto; }
+  .card { background: #242f3d; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+  .name { font-weight: 600; font-size: 15px; margin-bottom: 8px; color: #2ea6ff; }
+  .weight-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .weight-row:last-child { border-bottom: none; }
+  .price { font-weight: 700; color: #fff; font-size: 13px; }
+  button.add-btn { border: 0; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; background: #2ea6ff; color: #fff; font-weight: 600; }
+  button.add-btn:active { opacity: 0.7; }
+  #bar { position: fixed; left: 0; right: 0; bottom: 0; background: #1e2c3a; padding: 12px 16px; box-shadow: 0 -4px 12px rgba(0,0,0,0.4); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
+  #total-text { font-size: 14px; }
+  #order { background: #2ea6ff; color: #fff; border: 0; padding: 10px 18px; font-size: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+</style>
 </head>
 <body>
-  <header>
-    <h2>Aphrodite YVN Shop</h2>
-    <p>Ընտրեք ապրանքը և քանակը</p>
-  </header>
 
-  <main id="grid">
-    <p>Ապրանքները բեռնվում են...</p>
-  </main>
-  <div id="error" role="status"></div>
+<header>
+  <h1>Aphrodite YVN Shop</h1>
+  <p>Բարև ձեզ, ընտրեք ապրանքը և քաշը 🛒</p>
+</header>
 
-  <footer id="bar">
-    <div>Ընդամենը՝ <b id="total">0 ֏</b></div>
-    <button id="order" type="button">Կապվել Telegram-ով</button>
-  </footer>
+<div class="container" id="grid"></div>
 
-  <script>
-    "use strict";
+<div id="bar">
+  <div id="total-text">Ընդամենը՝ <b id="total" style="color:#2ea6ff">0</b> ֏</div>
+  <button id="order">Պատվիրել 🛍️</button>
+</div>
 
-    // Փոխարինիր այս օրինակները քո օրինական ապրանքներով։
-    const PRODUCTS = [
-      { id: "item1", name: "Ապրանք 1", price: 1000 },
-      { id: "item2", name: "Ապրանք 2", price: 2000 }
-    ];
+<script>
+const OWNER = "Aphredit_YvnBot";
 
-    const OWNER = "YOUR_TELEGRAM_USERNAME";
-    const cart = {};
-    const grid = document.getElementById("grid");
-    const totalEl = document.getElementById("total");
-    const errorEl = document.getElementById("error");
+const PRODUCTS = [
+  {
+    name: "HQ Ice / HQ Crystal 💎",
+    weights: [
+      { label: "0.5g", price: 18000 },
+      { label: "1g", price: 30000 },
+      { label: "2g", price: 55000 }
+    ]
+  },
+  {
+    name: "Mephedrone / White Powder ❄️",
+    weights: [
+      { label: "0.5g", price: 15000 },
+      { label: "1g", price: 25000 },
+      { label: "2g", price: 45000 }
+    ]
+  }
+];
 
-    const money = n => n.toLocaleString("hy-AM") + " ֏";
+const tg = window.Telegram && Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
 
-    function render() {
-      grid.replaceChildren();
+const cart = {};
+const grid = document.getElementById("grid");
 
-      PRODUCTS.forEach(product => {
-        const card = document.createElement("section");
-        card.className = "card";
-
-        const title = document.createElement("div");
-        title.className = "name";
-        title.textContent = product.name;
-        card.appendChild(title);
-
-        const row = document.createElement("div");
-        row.className = "item";
-
-        const price = document.createElement("span");
-        price.className = "price";
-        price.textContent = money(product.price);
-
-        const controls = document.createElement("div");
-        controls.className = "qty";
-
-        const minus = document.createElement("button");
-        minus.type = "button";
-        minus.textContent = "−";
-        minus.setAttribute("aria-label", "Նվազեցնել");
-        minus.addEventListener("click", () => changeQty(product.id, -1));
-
-        const count = document.createElement("span");
-        count.textContent = String(cart[product.id] || 0);
-
-        const plus = document.createElement("button");
-        plus.type = "button";
-        plus.textContent = "+";
-        plus.setAttribute("aria-label", "Ավելացնել");
-        plus.addEventListener("click", () => changeQty(product.id, 1));
-
-        controls.append(minus, count, plus);
-        row.append(price, controls);
-        card.appendChild(row);
-        grid.appendChild(card);
-      });
-
-      updateTotal();
-    }
-
-    function changeQty(id, delta) {
-      cart[id] = Math.max(0, (cart[id] || 0) + delta);
-      render();
-    }
-
-    function updateTotal() {
-      const total = PRODUCTS.reduce(
-        (sum, p) => sum + p.price * (cart[p.id] || 0), 0
-      );
-      totalEl.textContent = money(total);
-    }
-
-    document.getElementById("order").addEventListener("click", () => {
-      const selected = PRODUCTS.filter(p => (cart[p.id] || 0) > 0);
-
-      if (!selected.length) {
-        errorEl.textContent = "Նախ ընտրեք առնվազն մեկ ապրանք։";
-        return;
-      }
-
-      if (!/^[A-Za-z0-9_]{5,32}$/.test(OWNER) ||
-          OWNER === "YOUR_TELEGRAM_USERNAME") {
-        errorEl.textContent =
-          "Կոդում նշեք ձեր Telegram օգտանունը՝ OWNER փոփոխականում։";
-        return;
-      }
-
-      const lines = selected.map(
-        p => ${p.name} × ${cart[p.id]} — ${money(p.price * cart[p.id])}
-      );
-      const total = selected.reduce(
-        (sum, p) => sum + p.price * cart[p.id], 0
-      );
-      const message = "Բարև։ Հետաքրքրված եմ հետևյալ ապրանքներով։\n\n" +
-        lines.join("\n") + "\n\nԸնդամենը՝ " + money(total);
-
-      const url = "https://t.me/" + OWNER + "?text=" +
-        encodeURIComponent(message);
-
-      const tg = window.Telegram && window.Telegram.WebApp;
-      if (tg && typeof tg.openTelegramLink === "function") {
-        tg.openTelegramLink(url);
-      } else {
-        window.open(url, "_blank", "noopener,noreferrer");
-      }
+function renderShop() {
+  grid.innerHTML = "";
+  PRODUCTS.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "card";
+    
+    let weightsHtml = <div class="name">${p.name}</div>;
+    p.weights.forEach(w => {
+      const key = ${p.name} (${w.label});
+      const count = cart[key] || 0;
+      weightsHtml += 
+        <div class="weight-row">
+          <span>${w.label}</span>
+          <span class="price">${w.price.toLocaleString()} ֏</span>
+          <button class="add-btn" onclick="addToCart('${p.name}', '${w.label}', ${w.price})">
+            ${count > 0 ? 'Ընտրված (' + count + ')' : 'Ավելացնել'}
+          </button>
+        </div>
+      ;
     });
 
-    try {
-      const tg = window.Telegram && window.Telegram.WebApp;
-      if (tg) {
-        tg.ready();
-        tg.expand();
-      }
-      render();
-    } catch (e) {
-      errorEl.textContent = "Էջի բեռնման սխալ։ Թարմացրեք էջը։";
-      console.error(e);
-    }
-  </script>
+    card.innerHTML = weightsHtml;
+    grid.appendChild(card);
+  });
+}
+
+function addToCart(productName, label, price) {
+  const key = ${productName} (${label});
+  cart[key] = (cart[key] || 0) + 1;
+  renderShop();
+  updateTotal();
+}
+
+function updateTotal() {
+  let t = 0;
+  for (let key in cart) {
+    PRODUCTS.forEach(p => {
+      p.weights.forEach(w => {
+        if (key === ${p.name} (${w.label})) {
+          t += w.price * cart[key];
+        }
+      });
+    });
+  }
+  document.getElementById("total").textContent = t.toLocaleString();
+}
+
+renderShop();
+
+document.getElementById("order").onclick = () => {
+  const items = Object.keys(cart);
+  if (!items.length) { 
+    alert("Խնդրում ենք ընտրել գոնե մեկ ապրանք"); 
+    return; 
+  }
+  
+  let totalSum = document.getElementById("total").textContent;
+  let text = "🛍️ Նոր պատվեր Aphrodite YVN-ից:\n\n";
+  items.forEach(item => {
+    text += ▪️ ${item} (քանակ: ${cart[item]})\n;
+  });
+  text += \n💰 Ընդամենը՝ ${totalSum} ֏\n\n;
+  text += "💳 Վճարման տվյալներ:\n";
+  text += "• Dash: Xiu7U3mBfW9Z4qY2Xp1vN8kR5tL0mJ3hG\n";
+  text += "• Telcell: 055513545\n";
+  text += "• EasyPay: 095061193";
+
+  if (tg && tg.sendData) {
+    tg.sendData(text);
+  } else {
+    const url = https://t.me/${OWNER}?text= + encodeURIComponent(text);
+    window.open(url, "_blank");
+  }
+};
+</script>
+
 </body>
 </html>
