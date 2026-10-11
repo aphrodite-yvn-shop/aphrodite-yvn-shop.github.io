@@ -28,43 +28,36 @@
 
 <header>
   <h1>Aphrodite YVN Shop</h1>
-  <p>Բարև ձեզ, ընտրեք ապրանքը և քաշը 🛒</p>
+  <p>Ընտրեք տեսականին և քաշը 🛒</p>
 </header>
 
 <div class="container" id="grid"></div>
 
 <div id="bar">
-  <div id="total-text">Ընդամենը՝ <b id="total" style="color:#2ea6ff">0</b> ֏</div>
+  <div id="total-text">Ընդամենը՝ <b id="total" style="color:#2ea6ff">0</b> $</div>
   <button id="order">Պատվիրել 🛍️</button>
 </div>
 
 <script>
-const OWNER = "Aphrodite_YVN_BOT"; // Բոտի ճիշտ username-ը
-
 const PRODUCTS = [
   {
-    name: "HQ Ice / HQ Crystal 💎",
+    name: "🪨 Բազալտ (Basalt)",
     weights: [
-      { label: "0.5g", price: 18000 },
-      { label: "1g", price: 30000 },
-      { label: "2g", price: 55000 }
+      { label: "0.5g", price: 50 },
+      { label: "1.0g", price: 80 }
     ]
   },
   {
-    name: "Mephedrone / White Powder ❄️",
+    name: "🦸‍♂️ Հերոս (Heros)",
     weights: [
-      { label: "0.5g", price: 15000 },
-      { label: "1g", price: 25000 },
-      { label: "2g", price: 45000 }
+      { label: "0.5g", price: 55 },
+      { label: "1.0g", price: 100 }
     ]
   }
 ];
 
-const tg = window.Telegram && Telegram.WebApp ? Telegram.WebApp : null;
-if (tg) { 
-  tg.ready(); 
-  tg.expand(); 
-}
+const tg = window.Telegram && Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
 
 const cart = {};
 const grid = document.getElementById("grid");
@@ -89,10 +82,10 @@ function renderShop() {
 
       const priceSpan = document.createElement("span");
       priceSpan.className = "price";
-      priceSpan.textContent = w.price.toLocaleString() + " ֏";
+      priceSpan.textContent = w.price + " $";
 
       const btn = document.createElement("button");
-      const key = ${p.name} (${w.label});
+      const key = ${p.name} - ${w.label};
       const count = cart[key] || 0;
       btn.className = "add-btn";
       btn.textContent = count > 0 ? Ընտրված (${count}) : "Ավելացնել";
@@ -118,13 +111,13 @@ function updateTotal() {
   for (let key in cart) {
     PRODUCTS.forEach(p => {
       p.weights.forEach(w => {
-        if (key === ${p.name} (${w.label})) {
+        if (key === ${p.name} - ${w.label}) {
           t += w.price * cart[key];
         }
       });
     });
   }
-  document.getElementById("total").textContent = t.toLocaleString();
+  document.getElementById("total").textContent = t;
 }
 
 renderShop();
@@ -141,23 +134,16 @@ document.getElementById("order").onclick = () => {
   items.forEach(item => {
     text += ▪️ ${item} (քանակ: ${cart[item]})\n;
   });
-  text += \n💰 Ընդամենը՝ ${totalSum} ֏\n\n;
-  text += "💳 Վճարման տվյալներ:\n";
-  text += "• Dash: Xiu7U3mBfW9Z4qY2Xp1vN8kR5tL0mJ3hG\n";
-  text += "• Telcell: 055513545\n";
-  text += "• EasyPay: 095061193";
+  text += \n💰 **Ընդամենը՝ ${totalSum} $**\n\n;
+  text += Վճարման տվյալներ:ր:**\n";
+  text += "• Dash: Xiu7UWmMs4htPq2fX4Lb5vsVG6JoUZzfmy\n";
+  text += "• Telcell / EasyPay: 099604024\n";
+  text += "• Card: 4318290012322216";
 
-  // Հուսալի փոխանցման մեթոդ
-  const targetUrl = https://t.me/${OWNER}?start= + encodeURIComponent("order");
-  
   if (tg && tg.sendData) {
-    try {
-      tg.sendData(text);
-    } catch (e) {
-      tg.openTelegramLink(https://t.me/${OWNER}?text= + encodeURIComponent(text));
-    }
+    tg.sendData(text);
   } else {
-    window.location.href = https://t.me/${OWNER}?text= + encodeURIComponent(text);
+    alert("Telegram WebApp միջավայրը բացակայում է:");
   }
 };
 </script>
