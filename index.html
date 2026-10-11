@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hy">
 <head>
@@ -142,7 +143,7 @@ document.getElementById("order").onclick = () => {
   text += "Telcell / EasyPay: 099604024\n";
   text += "Card: 4318290012322216";
 
-  const url = https://t.me/${BOT_USERNAME}?text= + encodeURIComponent(text);
+  const url = "https://t.me/" + BOT_USERNAME + "?text=" + encodeURIComponent(text);
 
   if (tg && tg.openTelegramLink) {
     tg.openTelegramLink(url);
