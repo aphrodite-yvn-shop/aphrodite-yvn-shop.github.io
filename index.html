@@ -28,27 +28,29 @@
 
 <header>
   <h1>Aphrodite YVN Shop</h1>
-  <p>Ընտրեք տեսականին և քաշը 🛒</p>
+  <p>Ընտրեք տեսականին և քաշը</p>
 </header>
 
 <div class="container" id="grid"></div>
 
 <div id="bar">
   <div id="total-text">Ընդամենը՝ <b id="total" style="color:#2ea6ff">0</b> $</div>
-  <button id="order">Պատվիրել 🛍️</button>
+  <button id="order">Պատվիրել</button>
 </div>
 
 <script>
+const BOT_USERNAME = "Aphredit_YvnBot";
+
 const PRODUCTS = [
   {
-    name: "🪨 Բազալտ (Basalt)",
+    name: "Բազալտ (Basalt)",
     weights: [
       { label: "0.5g", price: 50 },
       { label: "1.0g", price: 80 }
     ]
   },
   {
-    name: "🦸‍♂️ Հերոս (Heros)",
+    name: "Հերոս (Heros)",
     weights: [
       { label: "0.5g", price: 55 },
       { label: "1.0g", price: 100 }
@@ -56,7 +58,7 @@ const PRODUCTS = [
   }
 ];
 
-const tg = window.Telegram && Telegram.WebApp;
+const tg = window.Telegram && Telegram.WebApp ? Telegram.WebApp : null;
 if (tg) { tg.ready(); tg.expand(); }
 
 const cart = {};
@@ -130,20 +132,23 @@ document.getElementById("order").onclick = () => {
   }
   
   let totalSum = document.getElementById("total").textContent;
-  let text = "🛍️ Նոր պատվեր Aphrodite YVN-ից:\n\n";
+  let text = "Նոր պատվեր Aphrodite YVN-ից:\n\n";
   items.forEach(item => {
-    text += ▪️ ${item} (քանակ: ${cart[item]})\n;
+    text += - ${item} (քանակ: ${cart[item]})\n;
   });
-  text += \n💰 **Ընդամենը՝ ${totalSum} $**\n\n;
-  text += Վճարման տվյալներ:ր:**\n";
-  text += "• Dash: Xiu7UWmMs4htPq2fX4Lb5vsVG6JoUZzfmy\n";
-  text += "• Telcell / EasyPay: 099604024\n";
-  text += "• Card: 4318290012322216";
+  text += \nԸնդամենը՝ ${totalSum} $\n\n;
+  text += "Վճարման տվյալներ:\n";
+  text += "Dash: Xiu7UWmMs4htPq2fX4Lb5vsVG6JoUZzfmy\n";
+  text += "Telcell / EasyPay: 099604024\n";
+  text += "Card: 4318290012322216";
 
-  if (tg && tg.sendData) {
-    tg.sendData(text);
+  const url = https://t.me/${BOT_USERNAME}?text= + encodeURIComponent(text);
+
+  if (tg && tg.openTelegramLink) {
+    tg.openTelegramLink(url);
+    tg.close();
   } else {
-    alert("Telegram WebApp միջավայրը բացակայում է:");
+    window.location.href = url;
   }
 };
 </script>
