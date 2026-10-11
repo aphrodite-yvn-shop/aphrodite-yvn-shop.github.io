@@ -2,20 +2,165 @@
 <html lang="hy">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Aphrodite YVN Shop</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  body { margin: 0; background: #18222d; color: #fff; font-family: sans-serif; padding: 10px; }
-  h2 { color: #2ea6ff; font-size: 16px; }
-  .item { background: #242f3d; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
-  button { background: #2ea6ff; color: #fff; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #18222d; color: #fff; padding-bottom: 90px; }
+  header { background: linear-gradient(135deg, #2ea6ff, #1882d2); color: #fff; padding: 16px; text-align: center; }
+  header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+  header p { margin: 4px 0 0; opacity: 0.9; font-size: 12px; }
+  .container { padding: 12px; max-width: 480px; margin: 0 auto; }
+  .card { background: #242f3d; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+  .name { font-weight: 600; font-size: 15px; margin-bottom: 8px; color: #2ea6ff; }
+  .weight-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .weight-row:last-child { border-bottom: none; }
+  .price { font-weight: 700; color: #fff; font-size: 13px; }
+  button.add-btn { border: 0; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; background: #2ea6ff; color: #fff; font-weight: 600; }
+  button.add-btn:active { opacity: 0.7; }
+  #bar { position: fixed; left: 0; right: 0; bottom: 0; background: #1e2c3a; padding: 12px 16px; box-shadow: 0 -4px 12px rgba(0,0,0,0.4); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
+  #total-text { font-size: 14px; }
+  #order { background: #2ea6ff; color: #fff; border: 0; padding: 10px 18px; font-size: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 </style>
 </head>
 <body>
-  <h2>Aphrodite YVN Shop</h2>
-  <div class="item">
-    <p>HQ Ice / HQ Crystal - 18,000 ֏</p>
-    <button onclick="alert('Ընտրված է')">Ավելացնել</button>
-  </div>
+
+<header>
+  <h1>Aphrodite YVN Shop</h1>
+  <p>Բարև ձեզ, ընտրեք ապրանքը և քաշը 🛒</p>
+</header>
+
+<div class="container" id="grid"></div>
+
+<div id="bar">
+  <div id="total-text">Ընդամենը՝ <b id="total" style="color:#2ea6ff">0</b> ֏</div>
+  <button id="order">Պատվիրել 🛍️</button>
+</div>
+
+<script>
+const OWNER = "Aphrodite_YVN_BOT"; // Բոտի ճիշտ username-ը
+
+const PRODUCTS = [
+  {
+    name: "HQ Ice / HQ Crystal 💎",
+    weights: [
+      { label: "0.5g", price: 18000 },
+      { label: "1g", price: 30000 },
+      { label: "2g", price: 55000 }
+    ]
+  },
+  {
+    name: "Mephedrone / White Powder ❄️",
+    weights: [
+      { label: "0.5g", price: 15000 },
+      { label: "1g", price: 25000 },
+      { label: "2g", price: 45000 }
+    ]
+  }
+];
+
+const tg = window.Telegram && Telegram.WebApp ? Telegram.WebApp : null;
+if (tg) { 
+  tg.ready(); 
+  tg.expand(); 
+}
+
+const cart = {};
+const grid = document.getElementById("grid");
+
+function renderShop() {
+  grid.innerHTML = "";
+  PRODUCTS.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "card";
+    
+    const title = document.createElement("div");
+    title.className = "name";
+    title.textContent = p.name;
+    card.appendChild(title);
+
+    p.weights.forEach(w => {
+      const row = document.createElement("div");
+      row.className = "weight-row";
+
+      const labelSpan = document.createElement("span");
+      labelSpan.textContent = w.label;
+
+      const priceSpan = document.createElement("span");
+      priceSpan.className = "price";
+      priceSpan.textContent = w.price.toLocaleString() + " ֏";
+
+      const btn = document.createElement("button");
+      const key = ${p.name} (${w.label});
+      const count = cart[key] || 0;
+      btn.className = "add-btn";
+      btn.textContent = count > 0 ? Ընտրված (${count}) : "Ավելացնել";
+      
+      btn.onclick = () => {
+        cart[key] = (cart[key] || 0) + 1;
+        renderShop();
+        updateTotal();
+      };
+
+      row.appendChild(labelSpan);
+      row.appendChild(priceSpan);
+      row.appendChild(btn);
+      card.appendChild(row);
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+function updateTotal() {
+  let t = 0;
+  for (let key in cart) {
+    PRODUCTS.forEach(p => {
+      p.weights.forEach(w => {
+        if (key === ${p.name} (${w.label})) {
+          t += w.price * cart[key];
+        }
+      });
+    });
+  }
+  document.getElementById("total").textContent = t.toLocaleString();
+}
+
+renderShop();
+
+document.getElementById("order").onclick = () => {
+  const items = Object.keys(cart);
+  if (!items.length) { 
+    alert("Խնդրում ենք ընտրել գոնե մեկ ապրանք"); 
+    return; 
+  }
+  
+  let totalSum = document.getElementById("total").textContent;
+  let text = "🛍️ Նոր պատվեր Aphrodite YVN-ից:\n\n";
+  items.forEach(item => {
+    text += ▪️ ${item} (քանակ: ${cart[item]})\n;
+  });
+  text += \n💰 Ընդամենը՝ ${totalSum} ֏\n\n;
+  text += "💳 Վճարման տվյալներ:\n";
+  text += "• Dash: Xiu7U3mBfW9Z4qY2Xp1vN8kR5tL0mJ3hG\n";
+  text += "• Telcell: 055513545\n";
+  text += "• EasyPay: 095061193";
+
+  // Հուսալի փոխանցման մեթոդ
+  const targetUrl = https://t.me/${OWNER}?start= + encodeURIComponent("order");
+  
+  if (tg && tg.sendData) {
+    try {
+      tg.sendData(text);
+    } catch (e) {
+      tg.openTelegramLink(https://t.me/${OWNER}?text= + encodeURIComponent(text));
+    }
+  } else {
+    window.location.href = https://t.me/${OWNER}?text= + encodeURIComponent(text);
+  }
+};
+</script>
+
 </body>
 </html>
